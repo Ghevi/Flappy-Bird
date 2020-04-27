@@ -7,22 +7,28 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ghevi.flappybird.GameMain;
 
+import bird.Bird;
 import helpers.Gameinfo;
 
 public class Gameplay implements Screen {
 
     private GameMain game;
+    private World world;
+
     private OrthographicCamera mainCamera;
     private Viewport gameViewport;
 
     private Array<Sprite> bgs = new Array<Sprite>();
     private Array<Sprite> grounds = new Array<Sprite>();
 
+    private Bird bird;
 
     public Gameplay(GameMain game){
         this.game = game;
@@ -34,6 +40,10 @@ public class Gameplay implements Screen {
 
         createBackgrounds();
         createGrounds();
+
+        world = new World(new Vector2(0, -9.8f), true);
+
+        bird = new Bird(world, Gameinfo.WIDTH / 2f - 80, Gameinfo.HEIGHT / 2f);
     }
 
     private void update(float dt){
@@ -52,7 +62,7 @@ public class Gameplay implements Screen {
     private void createGrounds(){
         for(int i = 0; i < 3; i++){
             Sprite ground = new Sprite(new Texture("Backgrounds/Ground.png"));
-            ground.setPosition(i * ground.getWidth(), ground.getHeight() / 2f - 55); // Repeat the ground towards right side ->
+            ground.setPosition(i * ground.getWidth(), -ground.getHeight() / 2f - 55); // Repeat the ground towards right side ->
             grounds.add(ground);
             System.out.println(ground.getHeight());
         }
@@ -107,9 +117,16 @@ public class Gameplay implements Screen {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.getBatch().begin();
+
         drawBackgrounds(game.getBatch());
         drawGrounds(game.getBatch());
+        bird.drawBirdIdle(game.getBatch());
+
         game.getBatch().end();
+
+        bird.updateBird();
+
+        world.step(Gdx.graphics.getDeltaTime(), 6, 2);
     }
 
     @Override
