@@ -12,8 +12,6 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ghevi.flappybird.GameMain;
 
-import java.util.ArrayList;
-
 import helpers.Gameinfo;
 
 public class Gameplay implements Screen {
@@ -23,6 +21,7 @@ public class Gameplay implements Screen {
     private Viewport gameViewport;
 
     private Array<Sprite> bgs = new Array<Sprite>();
+    private Array<Sprite> grounds = new Array<Sprite>();
 
 
     public Gameplay(GameMain game){
@@ -34,6 +33,12 @@ public class Gameplay implements Screen {
         gameViewport = new StretchViewport(Gameinfo.WIDTH, Gameinfo.HEIGHT, mainCamera);
 
         createBackgrounds();
+        createGrounds();
+    }
+
+    private void update(float dt){
+        moveBackgrounds();
+        moveGrounds();
     }
 
     private void createBackgrounds(){
@@ -44,9 +49,48 @@ public class Gameplay implements Screen {
         }
     }
 
+    private void createGrounds(){
+        for(int i = 0; i < 3; i++){
+            Sprite ground = new Sprite(new Texture("Backgrounds/Ground.png"));
+            ground.setPosition(i * ground.getWidth(), ground.getHeight() / 2f - 55); // Repeat the ground towards right side ->
+            grounds.add(ground);
+            System.out.println(ground.getHeight());
+        }
+    }
+
+    private void moveBackgrounds(){
+        for(Sprite bg : bgs){
+            float x1 = bg.getX() - 2f;
+            bg.setPosition(x1, bg.getY());
+
+            if(bg.getX() + Gameinfo.WIDTH + (bg.getWidth() / 2f) < mainCamera.position.x){
+                float x2 = bg.getX() + bg.getWidth() * bgs.size;
+                bg.setPosition(x2, bg.getY());
+            }
+        }
+    }
+
+    private void moveGrounds(){
+        for(Sprite ground : grounds){
+            float x1 = ground.getX() - 1f;
+            ground.setPosition(x1, ground.getY());
+
+            if(ground.getX() + Gameinfo.WIDTH + (ground.getWidth() / 2f) < mainCamera.position.x){
+                float x2 = ground.getX() + ground.getWidth() * grounds.size;
+                ground.setPosition(x2, ground.getY());
+            }
+        }
+    }
+
     private void drawBackgrounds(SpriteBatch batch){
-        for(Sprite s : bgs){
-            batch.draw(s, s.getX(), s.getY());
+        for(Sprite bg : bgs){
+            batch.draw(bg, bg.getX(), bg.getY());
+        }
+    }
+
+    private void drawGrounds(SpriteBatch batch){
+        for(Sprite ground : grounds){
+            batch.draw(ground, ground.getX(), ground.getY());
         }
     }
 
@@ -57,11 +101,14 @@ public class Gameplay implements Screen {
 
     @Override
     public void render(float delta) {
+        update(delta);
+
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         game.getBatch().begin();
         drawBackgrounds(game.getBatch());
+        drawGrounds(game.getBatch());
         game.getBatch().end();
     }
 
