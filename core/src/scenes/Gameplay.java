@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 import com.ghevi.flappybird.GameMain;
 
 import bird.Bird;
+import ground.GroundBody;
 import helpers.Gameinfo;
 
 public class Gameplay implements Screen {
@@ -25,10 +27,15 @@ public class Gameplay implements Screen {
     private OrthographicCamera mainCamera;
     private Viewport gameViewport;
 
+    private OrthographicCamera debugCamera;
+    private Box2DDebugRenderer debugRenderer;
+
     private Array<Sprite> bgs = new Array<Sprite>();
     private Array<Sprite> grounds = new Array<Sprite>();
 
     private Bird bird;
+
+    private GroundBody groundBody;
 
     public Gameplay(GameMain game){
         this.game = game;
@@ -38,17 +45,32 @@ public class Gameplay implements Screen {
 
         gameViewport = new StretchViewport(Gameinfo.WIDTH, Gameinfo.HEIGHT, mainCamera);
 
+        debugCamera = new OrthographicCamera();
+        debugCamera.setToOrtho(false, Gameinfo.WIDTH / Gameinfo.PPM, Gameinfo.HEIGHT / Gameinfo.PPM);
+        debugCamera.position.set(Gameinfo.WIDTH / 2f, Gameinfo.HEIGHT / 2f,0);
+
+        debugRenderer = new Box2DDebugRenderer();
+
         createBackgrounds();
         createGrounds();
 
         world = new World(new Vector2(0, -9.8f), true);
 
         bird = new Bird(world, Gameinfo.WIDTH / 2f - 80, Gameinfo.HEIGHT / 2f);
+
+        groundBody = new GroundBody(world, grounds.get(0));
     }
 
     private void update(float dt){
         moveBackgrounds();
         moveGrounds();
+        birdFlap();
+    }
+
+    private void birdFlap(){
+        if(Gdx.input.justTouched()){
+            bird.birdFlap();
+        }
     }
 
     private void createBackgrounds(){
@@ -123,6 +145,8 @@ public class Gameplay implements Screen {
         bird.drawBirdIdle(game.getBatch());
 
         game.getBatch().end();
+
+        debugRenderer.render(world, debugCamera.combined);
 
         bird.updateBird();
 

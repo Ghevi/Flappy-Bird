@@ -27,7 +27,7 @@ public class Bird extends Sprite {
 
     private void createBody(){
         BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.StaticBody;
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(getX() / Gameinfo.PPM, getY() / Gameinfo.PPM);
 
         body = world.createBody(bodyDef);
@@ -44,8 +44,12 @@ public class Bird extends Sprite {
         shape.dispose();
     }
 
+    public void birdFlap(){
+        body.setLinearVelocity(0, 3);
+    }
+
     public void drawBirdIdle(SpriteBatch batch){
-        batch.draw(this, getX(), getY());
+        batch.draw(this, getX() - getWidth() / 2f, getY() - 5 - getHeight() / 2f);
     }
 
     public void updateBird(){
