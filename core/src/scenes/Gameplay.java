@@ -18,6 +18,7 @@ import com.ghevi.flappybird.GameMain;
 import bird.Bird;
 import ground.GroundBody;
 import helpers.Gameinfo;
+import pipes.Pipes;
 
 public class Gameplay implements Screen {
 
@@ -36,6 +37,9 @@ public class Gameplay implements Screen {
     private Bird bird;
 
     private GroundBody groundBody;
+
+    // Only for testing
+    private Pipes pipes;
 
     public Gameplay(GameMain game){
         this.game = game;
@@ -59,6 +63,10 @@ public class Gameplay implements Screen {
         bird = new Bird(world, Gameinfo.WIDTH / 2f - 80, Gameinfo.HEIGHT / 2f);
 
         groundBody = new GroundBody(world, grounds.get(0));
+
+        // Only for testing
+        pipes = new Pipes(world, Gameinfo.WIDTH + 120);
+        pipes.setMainCamera(mainCamera);
     }
 
     private void update(float dt){
@@ -144,11 +152,20 @@ public class Gameplay implements Screen {
         drawGrounds(game.getBatch());
         bird.drawBirdIdle(game.getBatch());
 
+        // remove this later
+        pipes.drawPipes(game.getBatch());
+
         game.getBatch().end();
 
         debugRenderer.render(world, debugCamera.combined);
 
         bird.updateBird();
+
+        // remove this later
+        pipes.movePipes();
+
+        // remove this later
+        pipes.updatePipes();
 
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
     }
@@ -177,4 +194,5 @@ public class Gameplay implements Screen {
     public void dispose() {
 
     }
+
 } // gameplay

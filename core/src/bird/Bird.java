@@ -10,7 +10,10 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
+import com.badlogic.gdx.utils.Array;
 import helpers.Gameinfo;
+
+import java.util.ArrayList;
 
 public class Bird extends Sprite {
 
@@ -22,6 +25,7 @@ public class Bird extends Sprite {
         this.world = world;
         setPosition(x, y);
         createBody();
+        // body.setActive(false); // Deactivate the body
 
     }
 
