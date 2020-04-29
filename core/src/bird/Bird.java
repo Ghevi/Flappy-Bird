@@ -1,5 +1,6 @@
 package bird;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -35,6 +36,7 @@ public class Bird extends Sprite {
         bodyDef.position.set(getX() / Gameinfo.PPM, getY() / Gameinfo.PPM);
 
         body = world.createBody(bodyDef);
+        body.setFixedRotation(false);
 
         CircleShape shape = new CircleShape();
         shape.setRadius((getHeight() / 2f) / Gameinfo.PPM);
@@ -42,8 +44,11 @@ public class Bird extends Sprite {
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
         fixtureDef.density = 1f;
+        fixtureDef.filter.categoryBits = Gameinfo.BIRD;
+        fixtureDef.filter.maskBits = Gameinfo.GROUND | Gameinfo.PIPE | Gameinfo.SCORE;
 
         Fixture fixture = body.createFixture(fixtureDef);
+        fixture.setUserData("Bird");
 
         shape.dispose();
     }
@@ -53,7 +58,7 @@ public class Bird extends Sprite {
     }
 
     public void drawBirdIdle(SpriteBatch batch){
-        batch.draw(this, getX() - getWidth() / 2f, getY() - 5 - getHeight() / 2f);
+        batch.draw(this, getX() - getWidth() / 2f, getY() - getHeight() / 2f);
     }
 
     public void updateBird(){

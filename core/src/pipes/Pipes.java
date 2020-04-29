@@ -19,7 +19,7 @@ import helpers.Gameinfo;
 public class Pipes {
 
     private World world;
-    private Body body1, body2;
+    private Body body1, body2, body3;
 
     private Sprite pipe1, pipe2;
 
@@ -47,20 +47,40 @@ public class Pipes {
         // Creating body for pipe1
         bodyDef.position.set(pipe1.getX() / Gameinfo.PPM, pipe1.getY() / Gameinfo.PPM);
         body1 = world.createBody(bodyDef);
+        body1.setFixedRotation(false);
 
         // Creating body for pipe2
         // We can use the same bodyDef because we are setting the position again
         bodyDef.position.set(pipe2.getX() / Gameinfo.PPM, pipe2.getY() / Gameinfo.PPM);
         body2 = world.createBody(bodyDef);
+        body2.setFixedRotation(false);
+
+        // Create body for the score
+        bodyDef.position.set(pipe1.getX() / Gameinfo.PPM, y / Gameinfo.PPM); // we use y parameter because getY() is getting y + distance between pipes
+
+        body3 = world.createBody(bodyDef);
+        body3.setFixedRotation(false);
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox((pipe1.getWidth() / 2f) / Gameinfo.PPM, (pipe1.getHeight() / 2f) / Gameinfo.PPM);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
+        fixtureDef.filter.categoryBits = Gameinfo.PIPE;
 
         Fixture fixture1 = body1.createFixture(fixtureDef);
+        fixture1.setUserData("Pipe");
+
         Fixture fixture2 = body2.createFixture(fixtureDef);
+        fixture2.setUserData("Pipe");
+
+        shape.setAsBox(3 / Gameinfo.PPM, (pipe1.getHeight() / 2f) / Gameinfo.PPM);
+        fixtureDef.shape = shape;
+        fixtureDef.filter.categoryBits = Gameinfo.SCORE;
+        fixtureDef.isSensor = true;
+
+        Fixture fixture3 = body3.createFixture(fixtureDef);
+        fixture3.setUserData("Score");
 
         shape.dispose();
 
@@ -79,10 +99,12 @@ public class Pipes {
     public void movePipes(){
         body1.setLinearVelocity(-1, 0);
         body2.setLinearVelocity(-1, 0);
+        body3.setLinearVelocity(-1, 0);
 
         if(pipe1.getX() + (Gameinfo.WIDTH / 2f) + 60 <  mainCamera.position.x){
             body1.setActive(false);
             body2.setActive(false);
+            body3.setActive(false);
         }
     }
 

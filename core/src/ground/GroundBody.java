@@ -32,8 +32,10 @@ public class GroundBody {
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;
+        fixtureDef.filter.categoryBits = Gameinfo.GROUND;
 
         Fixture fixture = body.createFixture(fixtureDef);
+        fixture.setUserData("Ground");
 
         shape.dispose();
     }
