@@ -10,6 +10,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.actions.Actions;
+import com.badlogic.gdx.scenes.scene2d.actions.RunnableAction;
+import com.badlogic.gdx.scenes.scene2d.actions.SequenceAction;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
@@ -18,6 +21,7 @@ import com.ghevi.flappybird.GameMain;
 import bird.Bird;
 import ground.GroundBody;
 import helpers.Gameinfo;
+import hud.UIHud;
 import pipes.Pipes;
 
 public class Gameplay implements Screen {
@@ -38,8 +42,13 @@ public class Gameplay implements Screen {
 
     private GroundBody groundBody;
 
-    // Only for testing
-    private Pipes pipes;
+    private UIHud hud;
+
+    private Array<Pipes> pipesArray = new Array<Pipes>();
+    private final int DISTANCE_BETWEEN_PIPES = 120;
+
+    // Only for testing, just one pipe
+    // private Pipes pipes;
 
     public Gameplay(GameMain game){
         this.game = game;
@@ -55,6 +64,8 @@ public class Gameplay implements Screen {
 
         debugRenderer = new Box2DDebugRenderer();
 
+        hud = new UIHud(game);
+
         createBackgrounds();
         createGrounds();
 
@@ -64,15 +75,18 @@ public class Gameplay implements Screen {
 
         groundBody = new GroundBody(world, grounds.get(0));
 
-        // Only for testing
-        pipes = new Pipes(world, Gameinfo.WIDTH + 120);
-        pipes.setMainCamera(mainCamera);
+        addPipesCreationToStage();
+
+        // Only for testing, create one pipe
+        // pipes = new Pipes(world, Gameinfo.WIDTH + 120);
+        // pipes.setMainCamera(mainCamera);
     }
 
     private void update(float dt){
         moveBackgrounds();
         moveGrounds();
         birdFlap();
+        updatePipes();
     }
 
     private void birdFlap(){
@@ -87,6 +101,22 @@ public class Gameplay implements Screen {
             bg.setPosition(i * bg.getWidth(), 0); // Repeat the background towards right side ->
             bgs.add(bg);
         }
+    }
+
+    private void addPipesCreationToStage(){
+        RunnableAction run = new RunnableAction();
+        run.setRunnable(new Runnable() {
+            @Override
+            public void run() {
+                createPipes();
+            }
+        });
+
+        SequenceAction sa = new SequenceAction();
+        sa.addAction(Actions.delay(2f));
+        sa.addAction(run);
+
+        hud.getStage().addAction(Actions.forever(sa));
     }
 
     private void createGrounds(){
@@ -134,6 +164,31 @@ public class Gameplay implements Screen {
         }
     }
 
+    private void createPipes(){
+        Pipes p = new Pipes(world, Gameinfo.WIDTH + DISTANCE_BETWEEN_PIPES);
+        p.setMainCamera(mainCamera);
+        pipesArray.add(p);
+    }
+
+    private void drawPipes(SpriteBatch batch){
+        for(Pipes pipe : pipesArray){
+            pipe.drawPipes(batch);
+        }
+    }
+
+    private void updatePipes(){
+        for(Pipes pipe : pipesArray){
+            pipe.updatePipes();
+        }
+    }
+
+    private void movePipes(){
+        for (Pipes pipe : pipesArray) {
+            pipe.movePipes();
+        }
+    }
+
+
     @Override
     public void show() {
 
@@ -152,20 +207,29 @@ public class Gameplay implements Screen {
         drawGrounds(game.getBatch());
         bird.drawBirdIdle(game.getBatch());
 
-        // remove this later
-        pipes.drawPipes(game.getBatch());
+        // draw all pipes
+        drawPipes(game.getBatch());
+
+        // remove this later, draw one pipe for testing
+        // pipes.drawPipes(game.getBatch());
 
         game.getBatch().end();
 
         debugRenderer.render(world, debugCamera.combined);
 
+        game.getBatch().setProjectionMatrix(hud.getStage().getCamera().combined);
+        hud.getStage().draw();
+        hud.getStage().act();
+
         bird.updateBird();
 
-        // remove this later
-        pipes.movePipes();
+        movePipes();
 
-        // remove this later
-        pipes.updatePipes();
+        // remove this later, move one pipe for testing
+        // pipes.movePipes();
+
+        // remove this later, update one pipe for testing
+        // pipes.updatePipes();
 
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
     }
