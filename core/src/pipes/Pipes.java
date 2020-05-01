@@ -108,6 +108,12 @@ public class Pipes {
         }
     }
 
+    public void stopPipes(){
+        body1.setLinearVelocity(0, 0);
+        body2.setLinearVelocity(0, 0);
+        body3.setLinearVelocity(0, 0);
+    }
+
     public void setMainCamera(OrthographicCamera mainCamera){
         this.mainCamera = mainCamera;
     }

@@ -21,6 +21,8 @@ public class Bird extends Sprite {
     private World world;
     private Body body;
 
+    private boolean isAlive;
+
     public Bird(World world, float x, float y){
         super(new Texture("Birds/Blue/Idle.png"));
         this.world = world;
@@ -28,6 +30,7 @@ public class Bird extends Sprite {
         createBody();
         // body.setActive(false); // Deactivate the body
 
+        isAlive = true;
     }
 
     private void createBody(){
@@ -65,6 +68,13 @@ public class Bird extends Sprite {
         setPosition(body.getPosition().x * Gameinfo.PPM, body.getPosition().y * Gameinfo.PPM);
     }
 
+    public void setAlive(boolean alive) {
+        isAlive = alive;
+    }
+
+    public boolean isAlive() {
+        return isAlive;
+    }
 } // bird
 
 
