@@ -49,6 +49,8 @@ public class Gameplay implements Screen , ContactListener {
 
     private UIHud hud;
 
+    private boolean firstTouch;
+
     private Array<Pipes> pipesArray = new Array<Pipes>();
     private final int DISTANCE_BETWEEN_PIPES = 120;
 
@@ -81,20 +83,30 @@ public class Gameplay implements Screen , ContactListener {
 
         groundBody = new GroundBody(world, grounds.get(0));
 
-        addPipesCreationToStage();
-
         // Only for testing, create one pipe
         // pipes = new Pipes(world, Gameinfo.WIDTH + 120);
         // pipes.setMainCamera(mainCamera);
     }
 
     private void update(float dt){
+        checkForFirstTouch();
+
         if(bird.isAlive()){
             moveBackgrounds();
             moveGrounds();
             birdFlap();
             updatePipes();
             movePipes();
+        }
+    }
+
+    private void checkForFirstTouch(){
+        if(!firstTouch){
+            if(Gdx.input.justTouched()){
+                firstTouch = true;
+                bird.activateBird();
+                createAllPipes();
+            }
         }
     }
 
@@ -110,22 +122,6 @@ public class Gameplay implements Screen , ContactListener {
             bg.setPosition(i * bg.getWidth(), 0); // Repeat the background towards right side ->
             bgs.add(bg);
         }
-    }
-
-    private void addPipesCreationToStage(){
-        RunnableAction run = new RunnableAction();
-        run.setRunnable(new Runnable() {
-            @Override
-            public void run() {
-                createPipes();
-            }
-        });
-
-        SequenceAction sa = new SequenceAction();
-        sa.addAction(Actions.delay(2f));
-        sa.addAction(run);
-
-        hud.getStage().addAction(Actions.forever(sa));
     }
 
     private void createGrounds(){
@@ -179,6 +175,22 @@ public class Gameplay implements Screen , ContactListener {
         pipesArray.add(p);
     }
 
+    private void createAllPipes(){
+        RunnableAction run = new RunnableAction();
+        run.setRunnable(new Runnable() {
+            @Override
+            public void run() {
+                createPipes();
+            }
+        });
+
+        SequenceAction sa = new SequenceAction();
+        sa.addAction(Actions.delay(2f));
+        sa.addAction(run);
+
+        hud.getStage().addAction(Actions.forever(sa));
+    }
+
     private void drawPipes(SpriteBatch batch){
         for(Pipes pipe : pipesArray){
             pipe.drawPipes(batch);
@@ -209,6 +221,8 @@ public class Gameplay implements Screen , ContactListener {
 
         // remove the actions in this stage so they dont run forever because of [hud.getStage().addAction(Actions.forever(sa));]
         hud.getStage().clear();
+
+        hud.showScore();
     }
 
     @Override
@@ -312,6 +326,7 @@ public class Gameplay implements Screen , ContactListener {
         }
 
         if(body1.getUserData() == "Bird" && body2.getUserData() == "Score"){
+            hud.incrementScore();
             System.out.println("SCORE");
         }
     }

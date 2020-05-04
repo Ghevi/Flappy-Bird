@@ -30,7 +30,7 @@ public class Bird extends Sprite {
         createBody();
         // body.setActive(false); // Deactivate the body
 
-        isAlive = true;
+
     }
 
     private void createBody(){
@@ -54,6 +54,13 @@ public class Bird extends Sprite {
         fixture.setUserData("Bird");
 
         shape.dispose();
+
+        body.setActive(false);
+    }
+
+    public void activateBird(){
+        isAlive = true;
+        body.setActive(true);
     }
 
     public void birdFlap(){
