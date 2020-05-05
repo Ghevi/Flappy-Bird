@@ -221,8 +221,10 @@ public class Gameplay implements Screen , ContactListener {
 
         // remove the actions in this stage so they dont run forever because of [hud.getStage().addAction(Actions.forever(sa));]
         hud.getStage().clear();
-
         hud.showScore();
+
+        hud.createButtons();
+        Gdx.input.setInputProcessor(hud.getStage());
     }
 
     @Override
